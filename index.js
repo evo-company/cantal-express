@@ -25,8 +25,8 @@ export function init() {
 
         res.on('finish', () => {
             inProgress.decr();
-            const duration = Date.now() - start;
-            duration.incr(duration);
+            const timeDelta = Date.now() - start;
+            duration.incr(timeDelta);
         });
 
         next();
