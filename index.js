@@ -1,26 +1,32 @@
 import cantal from '@evo/cantal-js';
 
-
 export function init() {
-    const requestCounter = new cantal.Counter({
+    const requests = new cantal.Counter({
         group: 'incoming',
-        metric: 'request_count',
+        metric: 'requests',
     });
 
-    const requestTime = new cantal.Integer({
+    const duration = new cantal.Counter({
         group: 'incoming',
-        metric: 'request_time',
+        metric: 'total_duration',
+    });
+
+    const inProgress = new cantal.Integer({
+        group: 'incoming',
+        metric: 'in_progress',
     });
 
     cantal.start();
 
     function cantalMiddleware(req, res, next) {
-        requestCounter.incr();
+        requests.incr();
         const start = Date.now();
+        inProgress.incr();
 
         res.on('finish', () => {
+            inProgress.decr();
             const duration = Date.now() - start;
-            requestTime.set(duration);
+            duration.incr(duration);
         });
 
         next();
